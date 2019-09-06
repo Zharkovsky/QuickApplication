@@ -28,6 +28,9 @@ namespace DAL.Repositories
         public virtual void Add(TEntity entity)
         {
             _entities.Add(entity);
+            //entity = _context.Add(entity).Entity;
+            //_context.SaveChanges();
+            //return entity;
         }
 
         public virtual void AddRange(IEnumerable<TEntity> entities)

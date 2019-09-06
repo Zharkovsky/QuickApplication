@@ -1,8 +1,3 @@
-// =============================
-// Email: info@ebenmonney.com
-// www.ebenmonney.com/templates
-// =============================
-
 import { Injectable } from '@angular/core';
 import { TranslateService, TranslateLoader } from '@ngx-translate/core';
 import { Observable, Subject, of } from 'rxjs';
@@ -16,8 +11,8 @@ export class AppTranslationService {
   languageChanged$ = this.onLanguageChanged.asObservable();
 
   constructor(private translate: TranslateService) {
-    this.addLanguages(['en', 'fr', 'de', 'pt', 'ar', 'ko']);
-    this.setDefaultLanguage('en');
+    this.addLanguages(['ru', 'en', 'fr', 'de', 'pt', 'ar', 'ko']);
+    this.setDefaultLanguage('ru');
   }
 
   addLanguages(lang: string[]) {

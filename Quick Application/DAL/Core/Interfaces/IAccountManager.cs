@@ -16,12 +16,14 @@ namespace DAL.Core.Interfaces
     {
 
         Task<bool> CheckPasswordAsync(ApplicationUser user, string password);
+        Task<(bool Succeeded, string[] Errors)> CreateDisciplineAsync(Discipline value);
         Task<(bool Succeeded, string[] Errors)> CreateRoleAsync(ApplicationRole role, IEnumerable<string> claims);
         Task<(bool Succeeded, string[] Errors)> CreateUserAsync(ApplicationUser user, IEnumerable<string> roles, string password);
         Task<(bool Succeeded, string[] Errors)> DeleteRoleAsync(ApplicationRole role);
         Task<(bool Succeeded, string[] Errors)> DeleteRoleAsync(string roleName);
         Task<(bool Succeeded, string[] Errors)> DeleteUserAsync(ApplicationUser user);
         Task<(bool Succeeded, string[] Errors)> DeleteUserAsync(string userId);
+        Task<Discipline> GetDisciplineLoadRelatedAsync(string name);
         Task<ApplicationRole> GetRoleByIdAsync(string roleId);
         Task<ApplicationRole> GetRoleByNameAsync(string roleName);
         Task<ApplicationRole> GetRoleLoadRelatedAsync(string roleName);

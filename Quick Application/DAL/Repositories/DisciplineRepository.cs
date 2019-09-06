@@ -18,8 +18,6 @@ namespace DAL.Repositories
                 .ToList();
         }
 
-
-
         private ApplicationDbContext _appContext => (ApplicationDbContext)_context;
     }
 }

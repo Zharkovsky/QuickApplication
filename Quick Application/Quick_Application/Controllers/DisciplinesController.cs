@@ -8,6 +8,9 @@ using Quick_Application.ViewModels;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Quick_Application.Helpers;
+using DAL.Models;
+using Microsoft.AspNetCore.Authorization;
+using DAL.Core.Interfaces;
 
 namespace Quick_Application.Controllers
 {
@@ -17,13 +20,14 @@ namespace Quick_Application.Controllers
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger _logger;
+        private readonly IAccountManager _accountManager;
 
-
-        public DisciplinesController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<DisciplinesController> logger)
+        public DisciplinesController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<DisciplinesController> logger, IAccountManager accountManager)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _accountManager = accountManager;
         }
 
 
@@ -48,17 +52,40 @@ namespace Quick_Application.Controllers
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value: " + id;
+            var discipline = _unitOfWork.Disciplines.Find(_ => _.Id == id);
+            return Ok(_mapper.Map<DisciplineViewModel>(discipline));
         }
 
 
 
         // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
+        [HttpPost("roles")]
+        [Authorize(Authorization.Policies.ManageAllRolesPolicy)]
+        [ProducesResponseType(201, Type = typeof(DisciplineViewModel))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> CreateDiscipline([FromBody]DisciplineViewModel value)
         {
+            if (ModelState.IsValid)
+            {
+                if (value == null)
+                    return BadRequest($"{nameof(value)} cannot be null");
+
+
+                Discipline model = _mapper.Map<Discipline>(value);
+
+                var result = await _accountManager.CreateDisciplineAsync(model);
+                if (result.Succeeded)
+                {
+                    DisciplineViewModel vm = await GetDisciplineViewModelHelper(appRole.Name);
+                    return CreatedAtAction(GetRoleByIdActionName, new { id = roleVM.Id }, roleVM);
+                }
+
+                AddError(result.Errors);
+            }
+
+            return BadRequest(ModelState);
         }
 
 
@@ -67,6 +94,8 @@ namespace Quick_Application.Controllers
         [HttpPut("{id}")]
         public void Put(int id, [FromBody]string value)
         {
+            var discipline = _unitOfWork.Disciplines.Find(_ => _.Id == id);
+
         }
 
 
@@ -75,6 +104,16 @@ namespace Quick_Application.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+
+        private async Task<DisciplineViewModel> GetDisciplineViewModelHelper(string name)
+        {
+            var model = await _accountManager.GetDisciplineLoadRelatedAsync(name);
+            if (model != null)
+                return _mapper.Map<DisciplineViewModel>(model);
+
+
+            return null;
         }
     }
 }
